@@ -1,27 +1,25 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBepM9m1EgxFYAtHnp-_uPYPSpNPT-8fCs",
-  authDomain: "job-portal-56cf5.firebaseapp.com",
-  projectId: "job-portal-56cf5",
-  storageBucket: "job-portal-56cf5.appspot.com",
-  messagingSenderId: "158380212010",
-  appId: "1:158380212010:web:9dd40736216e0cfa3c6853",
-  measurementId: "G-C8TJ19X321"
+    apiKey: "AIzaSyBepM9m1EgxFYAtHnp-_uPYPSpNPT-8fCs",
+    authDomain: "job-portal-56cf5.firebaseapp.com",
+    projectId: "job-portal-56cf5",
+    storageBucket: "job-portal-56cf5.appspot.com",
+    messagingSenderId: "158380212010",
+    appId: "1:158380212010:web:9dd40736216e0cfa3c6853",
+    measurementId: "G-C8TJ19X321"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db = getFirestore(app);
 
-document.getElementById('job-form').addEventListener('submit', function(e) {
+document.getElementById('job-form').addEventListener('submit', async function(e) {
     e.preventDefault();
+    console.log("Form submitted");
 
     // Get form values
     const jobTitle = document.getElementById('job-title').value;
@@ -30,27 +28,33 @@ document.getElementById('job-form').addEventListener('submit', function(e) {
     const requirements = document.getElementById('requirements').value;
     const contactInfo = document.getElementById('contact-info').value;
 
+    console.log("Job details:", { jobTitle, companyName, location, requirements, contactInfo });
+
     // Save job to Firestore
-    db.collection("jobs").add({
-        jobTitle,
-        companyName,
-        location,
-        requirements,
-        contactInfo
-    }).then(() => {
+    try {
+        await addDoc(collection(db, "jobs"), {
+            jobTitle,
+            companyName,
+            location,
+            requirements,
+            contactInfo
+        });
+        console.log("Job opportunity submitted successfully!");
         alert("Job opportunity submitted successfully!");
         document.getElementById('job-form').reset();
         fetchJobs(); // Refresh job listings
-    }).catch((error) => {
+    } catch (error) {
         console.error("Error adding document: ", error);
-    });
+    }
 });
 
-function fetchJobs() {
+async function fetchJobs() {
     document.getElementById('jobs-container').innerHTML = "";
-    db.collection("jobs").get().then((querySnapshot) => {
+    try {
+        const querySnapshot = await getDocs(collection(db, "jobs"));
         querySnapshot.forEach((doc) => {
             const job = doc.data();
+            console.log("Fetched job:", job);
             const jobItem = document.createElement('div');
             jobItem.classList.add('job-item');
             jobItem.innerHTML = `
@@ -62,7 +66,9 @@ function fetchJobs() {
             `;
             document.getElementById('jobs-container').appendChild(jobItem);
         });
-    });
+    } catch (error) {
+        console.error("Error fetching jobs: ", error);
+    }
 }
 
 // Fetch jobs on load
