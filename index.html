@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Opportunities Reporting</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Job Opportunities Reporting</h1>
+        <p>Submit and find job opportunities in Jammu.</p>
+    </header>
+    <main>
+        <section id="submit-job">
+            <h2>Submit a Job Opportunity</h2>
+            <form id="job-form">
+                <label for="job-title">Job Title:</label>
+                <input type="text" id="job-title" required>
+
+                <label for="company-name">Company Name:</label>
+                <input type="text" id="company-name" required>
+
+                <label for="location">Location:</label>
+                <input type="text" id="location" required>
+
+                <label for="requirements">Requirements:</label>
+                <textarea id="requirements" required></textarea>
+
+                <label for="contact-info">Contact Information:</label>
+                <input type="text" id="contact-info" required>
+
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+        <section id="job-listings">
+            <h2>Job Listings</h2>
+            <div id="jobs-container"></div>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
