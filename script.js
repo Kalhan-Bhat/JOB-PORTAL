@@ -1,3 +1,25 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBepM9m1EgxFYAtHnp-_uPYPSpNPT-8fCs",
+  authDomain: "job-portal-56cf5.firebaseapp.com",
+  projectId: "job-portal-56cf5",
+  storageBucket: "job-portal-56cf5.appspot.com",
+  messagingSenderId: "158380212010",
+  appId: "1:158380212010:web:9dd40736216e0cfa3c6853",
+  measurementId: "G-C8TJ19X321"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 document.getElementById('job-form').addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -8,20 +30,40 @@ document.getElementById('job-form').addEventListener('submit', function(e) {
     const requirements = document.getElementById('requirements').value;
     const contactInfo = document.getElementById('contact-info').value;
 
-    // Create job item
-    const jobItem = document.createElement('div');
-    jobItem.classList.add('job-item');
-    jobItem.innerHTML = `
-        <h3>${jobTitle}</h3>
-        <p><strong>Company:</strong> ${companyName}</p>
-        <p><strong>Location:</strong> ${location}</p>
-        <p><strong>Requirements:</strong> ${requirements}</p>
-        <p><strong>Contact:</strong> ${contactInfo}</p>
-    `;
-
-    // Append job item to job listings
-    document.getElementById('jobs-container').appendChild(jobItem);
-
-    // Clear form
-    document.getElementById('job-form').reset();
+    // Save job to Firestore
+    db.collection("jobs").add({
+        jobTitle,
+        companyName,
+        location,
+        requirements,
+        contactInfo
+    }).then(() => {
+        alert("Job opportunity submitted successfully!");
+        document.getElementById('job-form').reset();
+        fetchJobs(); // Refresh job listings
+    }).catch((error) => {
+        console.error("Error adding document: ", error);
+    });
 });
+
+function fetchJobs() {
+    document.getElementById('jobs-container').innerHTML = "";
+    db.collection("jobs").get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            const job = doc.data();
+            const jobItem = document.createElement('div');
+            jobItem.classList.add('job-item');
+            jobItem.innerHTML = `
+                <h3>${job.jobTitle}</h3>
+                <p><strong>Company:</strong> ${job.companyName}</p>
+                <p><strong>Location:</strong> ${job.location}</p>
+                <p><strong>Requirements:</strong> ${job.requirements}</p>
+                <p><strong>Contact:</strong> ${job.contactInfo}</p>
+            `;
+            document.getElementById('jobs-container').appendChild(jobItem);
+        });
+    });
+}
+
+// Fetch jobs on load
+fetchJobs();
